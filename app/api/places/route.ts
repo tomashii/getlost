@@ -1,8 +1,24 @@
 import { NextResponse } from "next/server";
+import { getPlaces } from "@/lib/places";
 import { getSupabase } from "@/lib/supabase";
 import type { Category } from "@/lib/types";
 
 const CATEGORIES: Category[] = ["nature", "view", "culture", "hidden", "chill"];
+
+/** Místa podle id: /api/places?ids=a,b,c. Slouží pro mapu už odhalených míst. */
+export async function GET(request: Request) {
+  const ids = (new URL(request.url).searchParams.get("ids") ?? "")
+    .split(",")
+    .map((x) => x.trim())
+    .filter(Boolean)
+    .slice(0, 300);
+  try {
+    return NextResponse.json(await getPlaces(ids));
+  } catch (e) {
+    console.error(e);
+    return NextResponse.json({ error: "Místa se nepodařilo načíst." }, { status: 500 });
+  }
+}
 
 /** Návrh nového místa od uživatele. Uloží se jako "pending" a čeká na schválení. */
 export async function POST(request: Request) {

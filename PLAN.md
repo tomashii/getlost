@@ -9,6 +9,7 @@ Nudíš se a nevíš kam. Nastavíš dopravu a čas, appka tě vede jen šipkou 
 | Platforma | Webová appka (PWA) na Next.js, hosting Vercel | Běží hned na iPhonu i Androidu bez App Storu, dá se přidat na plochu |
 | Data | Supabase (Postgres), bez přihlašování | Účty nejsou potřeba, dokud se neověří, že výlety lidi baví |
 | Navigace | Šipka + vzdálenost vzdušnou čarou, žádná mapa | Mapa s trasou prozradí cíl; šipka je i jednodušší |
+| Mapa | Jen u už odhalených míst (MapLibre + OpenFreeMap, zdarma bez klíče) | Nic neprozradí a ukáže, kde už jsi byl |
 | Město | Jen Praha, 30 ručně vybraných míst | Kvalita míst rozhoduje, jestli se uživatel vrátí |
 | Jazyk | Čeština | První uživatelé budou z Prahy; angličtina až s druhým městem |
 | Vzhled | Apple styl: systémové písmo, velké nadpisy, jedna zelená, světlý i tmavý režim | Zadání |
@@ -22,6 +23,8 @@ Nudíš se a nevíš kam. Nastavíš dopravu a čas, appka tě vede jen šipkou 
 - Odhalení cíle po příchodu do 50 m, nebo po vzdání
 - Lajk, sdílení, otevření v mapách
 - Návrh vlastního místa (ukládá se ke schválení)
+- Moje místa: statistiky, mapa a seznam už odhalených míst (ukládá se v telefonu, bez účtu)
+- Malá mapa na obrazovce odhalení
 - Demo režim z centra Prahy pro testování na počítači
 - Funguje i bez Supabase (čte `data/places.json`)
 
@@ -31,6 +34,7 @@ Nudíš se a nevíš kam. Nastavíš dopravu a čas, appka tě vede jen šipkou 
 - **MHD a auto** mají jen šipku vzdušnou čarou. Skutečná navigace krok za krokem bez prozrazení cíle je úkol na verzi 0.3.
 - **Lajky** se ukládají, ale nikde se nezobrazují jejich počty.
 - **Schvalování míst** je ruční v Supabase (změna `status` na `approved`).
+- **Historie výletů je jen v telefonu.** Po smazání dat prohlížeče nebo na jiném zařízení zmizí; trvalá bude až s přihlášením (v0.3).
 - **Offline režim** není.
 
 ## Roadmapa

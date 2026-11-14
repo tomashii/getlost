@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import { Icon } from "@/components/icons";
+import { PlacesMap } from "@/components/places-map";
 import { CATEGORY_LABEL, type Place } from "@/lib/types";
 
 function deviceId(): string {
@@ -118,6 +119,9 @@ export default function Reveal() {
               {place.tip}
             </div>
           )}
+        </div>
+        <div style={{ marginTop: 12 }}>
+          <PlacesMap places={[place]} height={180} />
         </div>
       </div>
 

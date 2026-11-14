@@ -4,7 +4,7 @@ import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { Icon } from "@/components/icons";
 import { bearingDeg, distanceM, formatDistance } from "@/lib/geo";
-import { clearTrip, loadTrip, markSeen, type ActiveTrip } from "@/lib/trip-store";
+import { addHistory, clearTrip, loadTrip, markSeen, type ActiveTrip } from "@/lib/trip-store";
 
 const ARRIVAL_RADIUS_M = 50;
 const DEMO_STEPS = 45;
@@ -106,6 +106,7 @@ export default function Trip() {
     if (!trip || remaining == null) return;
     if (remaining <= ARRIVAL_RADIUS_M) {
       markSeen(trip.id);
+      addHistory({ id: trip.id, arrived: true, distanceM: trip.startDistanceM, mode: trip.mode });
       clearTrip();
       try {
         navigator.vibrate?.([80, 60, 160]);
@@ -127,6 +128,7 @@ export default function Trip() {
   function giveUp() {
     if (!trip) return;
     markSeen(trip.id);
+    addHistory({ id: trip.id, arrived: false, distanceM: trip.startDistanceM, mode: trip.mode });
     clearTrip();
     router.replace(`/reveal/${trip.id}`);
   }

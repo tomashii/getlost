@@ -55,3 +55,30 @@ export function markSeen(id: string) {
     localStorage.setItem(SEEN_KEY, JSON.stringify(seen.slice(-200)));
   } catch {}
 }
+
+export interface HistoryEntry {
+  id: string;
+  at: string;
+  arrived: boolean;
+  distanceM: number;
+  mode: Mode;
+}
+
+const HISTORY_KEY = "getlost.history";
+
+/** Odhalená místa (došel nebo vzdal), nejnovější první. */
+export function loadHistory(): HistoryEntry[] {
+  try {
+    return JSON.parse(localStorage.getItem(HISTORY_KEY) ?? "[]") as HistoryEntry[];
+  } catch {
+    return [];
+  }
+}
+
+export function addHistory(entry: Omit<HistoryEntry, "at">) {
+  try {
+    const history = loadHistory();
+    history.unshift({ ...entry, at: new Date().toISOString() });
+    localStorage.setItem(HISTORY_KEY, JSON.stringify(history.slice(0, 300)));
+  } catch {}
+}

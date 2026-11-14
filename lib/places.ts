@@ -39,6 +39,19 @@ export async function getPlace(id: string): Promise<Place | null> {
   return (data as Place | null) ?? null;
 }
 
+/** Místa podle id (pro mapu navštívených míst). */
+export async function getPlaces(ids: string[]): Promise<Place[]> {
+  if (ids.length === 0) return [];
+  const supabase = getSupabase();
+  if (!supabase) return localPlaces.filter((p) => ids.includes(p.id));
+  const uuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+  const valid = ids.filter((id) => uuid.test(id));
+  if (valid.length === 0) return [];
+  const { data, error } = await supabase.from("places").select(COLUMNS).in("id", valid).eq("status", "approved");
+  if (error) throw new Error(error.message);
+  return (data ?? []) as Place[];
+}
+
 export interface TripRequest {
   lat: number;
   lng: number;

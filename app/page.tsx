@@ -28,6 +28,11 @@ export default function Home() {
           <span className="grow">Jak to funguje</span>
           <span className="chev"><Icon name="chevron" size={18} /></span>
         </button>
+        <Link href="/me" className="list-row">
+          <span className="icon-tile"><Icon name="map" /></span>
+          <span className="grow">Moje místa</span>
+          <span className="chev"><Icon name="chevron" size={18} /></span>
+        </Link>
         <Link href="/add" className="list-row">
           <span className="icon-tile"><Icon name="plus" /></span>
           <span className="grow">Přidat vlastní místo</span>
