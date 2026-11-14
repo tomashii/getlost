@@ -27,6 +27,7 @@ export function PlacesMap({ places, height = 280 }: { places: Place[]; height?: 
 
     import("maplibre-gl").then((maplibregl) => {
       if (cancelled || !container.current) return;
+      maplibregl.setWorkerUrl("/maplibre-gl-worker.mjs");
       const map = new maplibregl.Map({
         container: container.current,
         style: STYLE_URL,
@@ -37,6 +38,8 @@ export function PlacesMap({ places, height = 280 }: { places: Place[]; height?: 
         cooperativeGestures: places.length === 1,
       });
       map.touchZoomRotate.disableRotation();
+      // Zdroje mapy nech sbalené pod tlačítkem (i), ať nezakrývají mapu.
+      map.once("load", () => container.current?.querySelector(".maplibregl-ctrl-attrib")?.classList.remove("maplibregl-compact-show"));
 
       for (const p of places) {
         const el = document.createElement("div");

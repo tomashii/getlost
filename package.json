@@ -3,7 +3,9 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
+    "predev": "node scripts/copy-maplibre.mjs",
     "dev": "next dev",
+    "prebuild": "node scripts/copy-maplibre.mjs",
     "build": "next build",
     "start": "next start",
     "seed:sql": "node scripts/make-seed.mjs"
