@@ -2,7 +2,9 @@
 
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
+import { Contours } from "@/components/contours";
 import { Icon } from "@/components/icons";
+import { buzz, setVoiceEnabled, speak, spokenDistance, stopSpeaking, voiceEnabled } from "@/lib/cues";
 import { bearingDeg, distanceM, formatDistance } from "@/lib/geo";
 import { addHistory, clearTrip, loadTrip, markSeen, type ActiveTrip } from "@/lib/trip-store";
 
@@ -21,7 +23,10 @@ export default function Trip() {
   const [gpsError, setGpsError] = useState(false);
   const [hint, setHint] = useState("Jdi po šipce.");
   const [confirmGiveUp, setConfirmGiveUp] = useState(false);
+  const [voice, setVoice] = useState(true);
   const lastSample = useRef<number | null>(null);
+  const lastTrend = useRef<"closer" | "farther" | null>(null);
+  const milestones = useRef<number[]>([]);
   const rotation = useRef(0);
 
   // Načti aktivní výlet, bez něj tu nemáme co dělat.
@@ -33,7 +38,28 @@ export default function Trip() {
     }
     setTrip(t);
     setPos({ lat: t.startLat, lng: t.startLng });
+    setVoice(voiceEnabled());
+    milestones.current = [1000, 500, 200, 100].filter((m) => m < t.startDistanceM * 0.9);
+    speak(`Vyrážíme. Cíl je ${spokenDistance(t.startDistanceM)} daleko. Jdi po šipce.`);
   }, [router]);
+
+  // Nech displej svítit, dokud výlet běží.
+  useEffect(() => {
+    if (!trip || !("wakeLock" in navigator)) return;
+    let lock: WakeLockSentinel | null = null;
+    const acquire = () =>
+      navigator.wakeLock
+        .request("screen")
+        .then((l) => (lock = l))
+        .catch(() => {});
+    const onVisible = () => document.visibilityState === "visible" && acquire();
+    acquire();
+    document.addEventListener("visibilitychange", onVisible);
+    return () => {
+      document.removeEventListener("visibilitychange", onVisible);
+      lock?.release().catch(() => {});
+    };
+  }, [trip]);
 
   // Poloha: skutečná GPS, nebo simulovaný pohyb v demo režimu.
   useEffect(() => {
@@ -108,9 +134,8 @@ export default function Trip() {
       markSeen(trip.id);
       addHistory({ id: trip.id, arrived: true, distanceM: trip.startDistanceM, mode: trip.mode });
       clearTrip();
-      try {
-        navigator.vibrate?.([80, 60, 160]);
-      } catch {}
+      buzz([80, 60, 160]);
+      speak("Jsi na místě.");
       router.replace(`/reveal/${trip.id}?arrived=1`);
       return;
     }
@@ -118,15 +143,41 @@ export default function Trip() {
       lastSample.current = remaining;
       return;
     }
+    // Hlasové milníky: "Zbývá 200 metrů."
+    const next = milestones.current[0];
+    if (next !== undefined && remaining <= next) {
+      milestones.current = milestones.current.filter((m) => m < remaining);
+      speak(`Zbývá ${spokenDistance(next)}.`);
+    }
     const diff = remaining - lastSample.current;
     if (Math.abs(diff) >= 20) {
-      setHint(diff < 0 ? "Přihořívá." : "Samá voda. Zkus to jinudy.");
+      const trend = diff < 0 ? "closer" : "farther";
+      setHint(trend === "closer" ? "Přihořívá." : "Samá voda. Zkus to jinudy.");
+      // Ozvi se jen při změně směru, ať to nemluví pořád.
+      if (trend !== lastTrend.current) {
+        if (trend === "farther") {
+          buzz([200, 100, 200]);
+          speak("Vzdaluješ se. Zkus to jinudy.");
+        } else if (lastTrend.current === "farther") {
+          buzz(60);
+          speak("Dobrý směr.");
+        }
+        lastTrend.current = trend;
+      }
       lastSample.current = remaining;
     }
   }, [trip, remaining, router]);
 
+  function toggleVoice() {
+    const on = !voice;
+    setVoice(on);
+    setVoiceEnabled(on);
+    if (on) speak("Hlasové pokyny zapnuty.");
+  }
+
   function giveUp() {
     if (!trip) return;
+    stopSpeaking();
     markSeen(trip.id);
     addHistory({ id: trip.id, arrived: false, distanceM: trip.startDistanceM, mode: trip.mode });
     clearTrip();
@@ -134,15 +185,18 @@ export default function Trip() {
   }
 
   function cancel() {
+    stopSpeaking();
     clearTrip();
     router.replace("/");
   }
 
   if (!trip || !pos || remaining == null) {
     return (
-      <main className="screen">
-        <div className="spinner" />
-      </main>
+      <div className="bleed">
+        <main className="screen on-dark">
+          <div className="spinner" />
+        </main>
+      </div>
     );
   }
 
@@ -152,94 +206,104 @@ export default function Trip() {
   rotation.current += delta;
 
   const [value, unit] = formatDistance(remaining).split(" ");
-  const dist = { value, unit };
   const progress = Math.max(0, Math.min(1, 1 - remaining / Math.max(trip.startDistanceM, 1)));
 
   return (
-    <main className="screen">
-      <div className="nav">
-        <button type="button" onClick={cancel}>
-          <Icon name="back" />
-          Ukončit
-        </button>
-        {trip.demo && <span className="badge">Demo</span>}
-      </div>
-
-      <div className="compass-wrap">
-        <div className="compass" aria-hidden="true">
-          <svg className="ticks" viewBox="0 0 200 200" style={{ transform: `rotate(${-(heading ?? 0)}deg)` }}>
-            {Array.from({ length: 60 }, (_, i) => (
-              <line
-                key={i}
-                x1="100"
-                y1={i % 15 === 0 ? 20 : 8}
-                x2="100"
-                y2={i % 5 === 0 ? 16 : 12}
-                stroke="currentColor"
-                strokeWidth={i % 15 === 0 ? 0 : i % 5 === 0 ? 1.6 : 0.8}
-                opacity={i % 5 === 0 ? 0.7 : 0.35}
-                transform={`rotate(${i * 6} 100 100)`}
-              />
-            ))}
-            <text x="100" y="19" textAnchor="middle" fontSize="11" fontWeight="700" fill="var(--danger)">S</text>
-            <text x="181" y="104" textAnchor="middle" fontSize="10" fontWeight="600" fill="currentColor">V</text>
-            <text x="100" y="189" textAnchor="middle" fontSize="10" fontWeight="600" fill="currentColor">J</text>
-            <text x="19" y="104" textAnchor="middle" fontSize="10" fontWeight="600" fill="currentColor">Z</text>
-          </svg>
-          <svg className="arrow" viewBox="0 0 100 100" style={{ transform: `rotate(${rotation.current}deg)` }}>
-            <defs>
-              <linearGradient id="arrow-fill" x1="0" y1="0" x2="1" y2="1">
-                <stop offset="0" stopColor="#3ccf78" />
-                <stop offset="1" stopColor="#158544" />
-              </linearGradient>
-            </defs>
-            <path d="M50 4 L84 92 L50 74 L16 92 Z" fill="url(#arrow-fill)" strokeLinejoin="round" />
-          </svg>
-        </div>
-        <div style={{ textAlign: "center" }}>
-          <div className="distance" aria-live="polite">
-            {dist.value}
-            <small>{dist.unit}</small>
-          </div>
-          <p className="hint">{hint}</p>
-        </div>
-        <div className="progress" role="progressbar" aria-valuenow={Math.round(progress * 100)} aria-valuemin={0} aria-valuemax={100}>
-          <div style={{ width: `${progress * 100}%` }} />
-        </div>
-      </div>
-
-      <div className="stack">
-        {gpsError && (
-          <div className="notice error" role="alert">
-            Nemám signál GPS. Zkontroluj, že má prohlížeč povolenou polohu.
-          </div>
-        )}
-        {trip.stretched && progress < 0.1 && (
-          <div className="notice">V okolí zatím moc míst nemáme, tohle je o kus dál, než sis vybral.</div>
-        )}
-        {needsCompassPermission && (
-          <button type="button" className="btn secondary" onClick={enableCompass}>
-            Zapnout kompas
+    <div className="bleed">
+      <Contours />
+      <main className="screen on-dark">
+        <div className="nav">
+          <button type="button" onClick={cancel}>
+            <Icon name="back" />
+            Ukončit
           </button>
-        )}
-        {heading == null && !needsCompassPermission && (
-          <p className="footnote">Bez kompasu šipka ukazuje směr vůči severu (S je nahoře).</p>
-        )}
-        {confirmGiveUp ? (
-          <div className="row">
-            <button type="button" className="btn secondary" onClick={() => setConfirmGiveUp(false)}>
-              Jdu dál
-            </button>
-            <button type="button" className="btn" onClick={giveUp}>
-              Prozradit
+          <div className="row" style={{ alignItems: "center" }}>
+            {trip.demo && <span className="badge">Demo</span>}
+            <button
+              type="button"
+              className="icon-btn"
+              onClick={toggleVoice}
+              aria-pressed={voice}
+              aria-label={voice ? "Vypnout hlasové pokyny" : "Zapnout hlasové pokyny"}
+            >
+              <Icon name={voice ? "sound" : "mute"} size={26} />
             </button>
           </div>
-        ) : (
-          <button type="button" className="btn plain danger" onClick={() => setConfirmGiveUp(true)}>
-            Vzdát to a prozradit cíl
-          </button>
-        )}
-      </div>
-    </main>
+        </div>
+
+        <div className="compass-wrap">
+          <div className="compass" aria-hidden="true">
+            <svg className="ticks" viewBox="0 0 200 200" style={{ transform: `rotate(${-(heading ?? 0)}deg)` }}>
+              {Array.from({ length: 72 }, (_, i) =>
+                i % 18 === 0 ? null : (
+                  <line
+                    key={i}
+                    x1="100"
+                    y1="6"
+                    x2="100"
+                    y2={i % 6 === 0 ? 18 : 12}
+                    stroke="#ffffff"
+                    strokeWidth={i % 6 === 0 ? 2 : 1}
+                    opacity={i % 6 === 0 ? 0.9 : 0.45}
+                    transform={`rotate(${i * 5} 100 100)`}
+                  />
+                ),
+              )}
+              <text x="100" y="20" textAnchor="middle" fontSize="17" fontWeight="800" fill="var(--yellow)">S</text>
+              <text x="186" y="106" textAnchor="middle" fontSize="15" fontWeight="700" fill="#ffffff">V</text>
+              <text x="100" y="194" textAnchor="middle" fontSize="15" fontWeight="700" fill="#ffffff">J</text>
+              <text x="14" y="106" textAnchor="middle" fontSize="15" fontWeight="700" fill="#ffffff">Z</text>
+            </svg>
+            <svg className="arrow" viewBox="0 0 100 100" style={{ transform: `rotate(${rotation.current}deg)` }}>
+              <path d="M50 2 L88 96 L50 76 L12 96 Z" fill="currentColor" />
+            </svg>
+          </div>
+
+          <div>
+            <div className="distance" aria-live="polite">
+              {value}
+              <small>{unit}</small>
+            </div>
+            <p className="hint">{hint}</p>
+          </div>
+          <div className="trail" role="progressbar" aria-valuenow={Math.round(progress * 100)} aria-valuemin={0} aria-valuemax={100}>
+            <div style={{ width: `${progress * 100}%` }} />
+          </div>
+        </div>
+
+        <div className="stack" style={{ marginTop: 18 }}>
+          {gpsError && (
+            <div className="notice error" role="alert">
+              Nemám signál GPS. Zkontroluj, že má prohlížeč povolenou polohu.
+            </div>
+          )}
+          {trip.stretched && progress < 0.1 && (
+            <div className="notice">V okolí zatím moc míst nemáme, tohle je o kus dál, než sis vybral.</div>
+          )}
+          {needsCompassPermission && (
+            <button type="button" className="btn" onClick={enableCompass}>
+              Zapnout kompas
+            </button>
+          )}
+          {heading == null && !needsCompassPermission && (
+            <p className="footnote">Bez kompasu šipka ukazuje směr vůči severu (S je nahoře).</p>
+          )}
+          {confirmGiveUp ? (
+            <div className="row">
+              <button type="button" className="btn ghost" onClick={() => setConfirmGiveUp(false)}>
+                Jdu dál
+              </button>
+              <button type="button" className="btn" onClick={giveUp}>
+                Prozradit
+              </button>
+            </div>
+          ) : (
+            <button type="button" className="btn text" onClick={() => setConfirmGiveUp(true)}>
+              Vzdát to a prozradit cíl
+            </button>
+          )}
+        </div>
+      </main>
+    </div>
   );
 }

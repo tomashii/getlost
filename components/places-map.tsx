@@ -2,18 +2,10 @@
 
 import "maplibre-gl/dist/maplibre-gl.css";
 import { useEffect, useRef } from "react";
-import type { Category, Place } from "@/lib/types";
+import type { Place } from "@/lib/types";
 
 /** Podkladová mapa: OpenFreeMap (zdarma, bez klíče), data OpenStreetMap. */
 const STYLE_URL = "https://tiles.openfreemap.org/styles/positron";
-
-export const CATEGORY_COLOR: Record<Category, string> = {
-  nature: "#1c8a4c",
-  view: "#2a6fd0",
-  culture: "#cf7a14",
-  hidden: "#6a48cf",
-  chill: "#df5a3c",
-};
 
 /** Mapa s body míst. Ukazuje jen místa, která už uživatel odhalil. */
 export function PlacesMap({ places, height = 280 }: { places: Place[]; height?: number }) {
@@ -43,8 +35,7 @@ export function PlacesMap({ places, height = 280 }: { places: Place[]; height?: 
 
       for (const p of places) {
         const el = document.createElement("div");
-        el.className = "map-pin";
-        el.style.background = CATEGORY_COLOR[p.category];
+        el.className = `map-pin marker ${p.category}`;
         el.title = p.name;
         new maplibregl.Marker({ element: el })
           .setLngLat([p.lng, p.lat])

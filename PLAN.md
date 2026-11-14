@@ -12,7 +12,7 @@ Nudíš se a nevíš kam. Nastavíš dopravu a čas, appka tě vede jen šipkou 
 | Mapa | Jen u už odhalených míst (MapLibre + OpenFreeMap, zdarma bez klíče) | Nic neprozradí a ukáže, kde už jsi byl |
 | Město | Jen Praha, 30 ručně vybraných míst | Kvalita míst rozhoduje, jestli se uživatel vrátí |
 | Jazyk | Čeština | První uživatelé budou z Prahy; angličtina až s druhým městem |
-| Vzhled | Apple styl: systémové písmo, velké nadpisy, jedna zelená, světlý i tmavý režim | Zadání |
+| Vzhled | Vlastní identita z orientace v terénu: turistická značka, vrstevnice, smrková zelená + žlutá, písmo Sofia Sans (navržené pro městský orientační systém) | Ať to nevypadá jako šablona |
 
 ## Co je hotové (v0.1)
 
@@ -25,6 +25,9 @@ Nudíš se a nevíš kam. Nastavíš dopravu a čas, appka tě vede jen šipkou 
 - Návrh vlastního místa (ukládá se ke schválení)
 - Moje místa: statistiky, mapa a seznam už odhalených míst (ukládá se v telefonu, bez účtu)
 - Malá mapa na obrazovce odhalení
+- Spodní lišta záložek: Výlet, Místa, Profil
+- Profil: statistiky, odznaky, nastavení
+- Hlasové pokyny a vibrace během výletu, displej při výletu nezhasíná
 - Demo režim z centra Prahy pro testování na počítači
 - Funguje i bez Supabase (čte `data/places.json`)
 
@@ -47,6 +50,11 @@ Nudíš se a nevíš kam. Nastavíš dopravu a čas, appka tě vede jen šipkou 
 5. Jednoduchá analytika: kolik výletů začalo, kolik skončilo příchodem, kolik vzdáním
 6. Dát 20–30 lidem a sledovat, jestli jdou podruhé
 
+### v0.25: MHD doopravdy
+1. Napojit vyhledávač spojení (kandidáti: Golemio/PID otevřená data, Google Routes, Transitous)
+2. Výlet MHD ve třech krocích: šipka na zastávku, pokyn "nastup do tramvaje 17 směr X, vystup na 4. zastávce" (bez názvu cílové zastávky to nejde, takže se prozradí jen zastávka, ne cíl), potom šipka k cíli
+3. Přepnutí dopravy během výletu
+
 ### v0.3: komunita
 1. Přihlášení (Supabase Auth: Apple, Google, e-mail)
 2. Profil: historie výletů, nachozené kilometry, odznaky (už je máš v návrhu)
@@ -61,7 +69,7 @@ Nudíš se a nevíš kam. Nastavíš dopravu a čas, appka tě vede jen šipkou 
 4. První jednání s městskou částí nebo turistickou organizací o sponzorované trase
 
 ### Později
-- Nativní appka pro iOS (zabalit přes Capacitor, nebo přepsat do React Native)
+- Nativní appka pro iOS (zabalit přes Capacitor, nebo přepsat do React Native). Teprve ta umí navigaci se zamčeným displejem, živé aktivity na zamykací obrazovce a hodinky
 - Druhé město a angličtina
 - Výlety ve dvou nebo ve skupině (všichni jdou ke stejnému cíli)
 - Vícezastávkové výlety ("večer o třech zastávkách")

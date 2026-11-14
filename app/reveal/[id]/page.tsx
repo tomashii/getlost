@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import { Icon } from "@/components/icons";
+import { Marker } from "@/components/marker";
 import { PlacesMap } from "@/components/places-map";
 import { CATEGORY_LABEL, type Place } from "@/lib/types";
 
@@ -97,50 +98,39 @@ export default function Reveal() {
 
   return (
     <main className="screen">
-      <div className="reveal">
-        <div className={`hero ${place.category}`}>
-          <span className="hero-icon">
-            <Icon name={place.category} size={40} />
-          </span>
-        </div>
-        <p className="reveal-kicker">{arrived ? "Jsi tady" : "Mířil jsi sem"}</p>
-        <h1 className="large-title">{place.name}</h1>
-        <p className="subtitle" style={{ marginBottom: 16 }}>
-          <span className="pill">
-            <Icon name={place.category} size={15} />
-            {CATEGORY_LABEL[place.category]}
-          </span>
+      <Marker category={place.category} className="reveal-marker" />
+      <p className="kicker">{arrived ? "Jsi tady" : "Mířil jsi sem"}</p>
+      <h1 className="display l">{place.name}</h1>
+      <p className="category">
+        <Marker category={place.category} />
+        {CATEGORY_LABEL[place.category]}
+      </p>
+      <p className="reveal-body">{place.description}</p>
+      {place.tip && (
+        <p className="tip">
+          <strong>Tip:</strong> {place.tip}
         </p>
-        <div className="card">
-          <div>{place.description}</div>
-          {place.tip && (
-            <div className="tip">
-              <strong>Tip</strong>
-              {place.tip}
-            </div>
-          )}
-        </div>
-        <div style={{ marginTop: 12 }}>
-          <PlacesMap places={[place]} height={180} />
-        </div>
+      )}
+      <div style={{ margin: "20px 0" }}>
+        <PlacesMap places={[place]} height={190} />
       </div>
 
       <div className="spacer" />
 
-      <div className="stack" style={{ marginTop: 24 }}>
+      <div className="stack">
         <div className="row">
-          <button type="button" className="btn secondary" onClick={like} aria-pressed={liked}>
+          <button type="button" className="btn ghost" onClick={like} aria-pressed={liked}>
             <Icon name="heart" size={20} filled={liked} />
             {liked ? "Líbí se" : "Líbí se mi"}
           </button>
-          <button type="button" className="btn secondary" onClick={share}>
+          <button type="button" className="btn ghost" onClick={share}>
             <Icon name={copied ? "check" : "share"} size={20} />
             {copied ? "Zkopírováno" : "Sdílet"}
           </button>
         </div>
         {!arrived && (
           <a
-            className="btn secondary"
+            className="btn ghost"
             href={`https://www.google.com/maps/search/?api=1&query=${place.lat},${place.lng}`}
             target="_blank"
             rel="noreferrer"

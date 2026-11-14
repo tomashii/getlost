@@ -3,9 +3,11 @@
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { Icon } from "@/components/icons";
-import { CATEGORY_COLOR, PlacesMap } from "@/components/places-map";
+import { Marker } from "@/components/marker";
+import { PlacesMap } from "@/components/places-map";
+import { TabBar } from "@/components/tab-bar";
 import { loadHistory, type HistoryEntry } from "@/lib/trip-store";
-import { CATEGORY_LABEL, type Place } from "@/lib/types";
+import type { Place } from "@/lib/types";
 
 const DATE = new Intl.DateTimeFormat("cs-CZ", { day: "numeric", month: "numeric", year: "numeric" });
 
@@ -27,75 +29,47 @@ export default function Me() {
 
   const byId = useMemo(() => new Map(places.map((p) => [p.id, p])), [places]);
   const rows = (history ?? []).filter((h) => byId.has(h.id));
-  const arrivedCount = (history ?? []).filter((h) => h.arrived).length;
-  const km = (history ?? []).filter((h) => h.arrived).reduce((sum, h) => sum + h.distanceM, 0) / 1000;
 
   return (
-    <main className="screen">
-      <div className="nav">
-        <Link href="/"><Icon name="back" />Zpět</Link>
-      </div>
-      <h1 className="large-title">Moje místa</h1>
-      <p className="subtitle">Všechno, co jsi už odhalil.</p>
+    <>
+      <main className="screen has-tabs">
+        <h1 className="display l" style={{ marginTop: 20 }}>Moje místa</h1>
 
-      {history === null ? (
-        <div className="spinner" />
-      ) : history.length === 0 ? (
-        <>
-          <div className="spacer" />
-          <div className="empty">
-            <span className="icon-tile" style={{ width: 56, height: 56, borderRadius: 18 }}>
-              <Icon name="map" size={30} />
-            </span>
-            <strong>Zatím tu nic není</strong>
-            <p>Po prvním výletu se tu objeví mapa míst, kam tě Get Lost zavedl.</p>
+        {history === null ? (
+          <div className="spinner" />
+        ) : history.length === 0 ? (
+          <div className="empty" style={{ marginTop: 14 }}>
+            <p className="lede">Zatím tu nic není. Po prvním výletu se tu objeví mapa míst, kam tě Get Lost zavedl.</p>
+            <Link href="/go" className="btn" style={{ marginTop: 26 }}>
+              Ztratit se
+            </Link>
           </div>
-          <div className="spacer" />
-          <Link href="/go" className="btn">
-            Ztratit se
-          </Link>
-        </>
-      ) : (
-        <>
-          <div className="stats">
-            <div className="card">
-              <strong>{history.length}</strong>
-              <span>výletů</span>
+        ) : (
+          <>
+            <p className="lede" style={{ marginBottom: 20 }}>Všechno, co jsi už odhalil.</p>
+            {error && <div className="notice error" role="alert">Místa se nepodařilo načíst.</div>}
+            {places.length > 0 && <PlacesMap places={places} />}
+            <div style={{ marginTop: 20 }}>
+              {rows.map((h) => {
+                const p = byId.get(h.id)!;
+                return (
+                  <Link key={`${h.id}-${h.at}`} href={`/reveal/${h.id}`} className="list-row">
+                    <Marker category={p.category} />
+                    <span className="grow">
+                      {p.name}
+                      <small>
+                        {DATE.format(new Date(h.at))}, {h.arrived ? "došel jsem" : "vzdal jsem to"}
+                      </small>
+                    </span>
+                    <span className="chev"><Icon name="chevron" size={18} /></span>
+                  </Link>
+                );
+              })}
             </div>
-            <div className="card">
-              <strong>{arrivedCount}</strong>
-              <span>došel jsem</span>
-            </div>
-            <div className="card">
-              <strong>{km.toFixed(1).replace(".", ",")}</strong>
-              <span>km k cíli</span>
-            </div>
-          </div>
-
-          {error && <div className="notice error" role="alert">Místa se nepodařilo načíst.</div>}
-          {places.length > 0 && <PlacesMap places={places} />}
-
-          <div className="list" style={{ marginTop: 12 }}>
-            {rows.map((h) => {
-              const p = byId.get(h.id)!;
-              return (
-                <Link key={`${h.id}-${h.at}`} href={`/reveal/${h.id}`} className="list-row">
-                  <span className="icon-tile" style={{ background: CATEGORY_COLOR[p.category], color: "#fff" }}>
-                    <Icon name={p.category} size={20} />
-                  </span>
-                  <span className="grow">
-                    {p.name}
-                    <small>
-                      {CATEGORY_LABEL[p.category]} · {DATE.format(new Date(h.at))} · {h.arrived ? "došel jsem" : "vzdal jsem to"}
-                    </small>
-                  </span>
-                  <span className="chev"><Icon name="chevron" size={18} /></span>
-                </Link>
-              );
-            })}
-          </div>
-        </>
-      )}
-    </main>
+          </>
+        )}
+      </main>
+      <TabBar />
+    </>
   );
 }

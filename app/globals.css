@@ -1,31 +1,39 @@
+/*
+  Get Lost: vizuální systém
+  Vychází z orientace v terénu: turistická značka (tři pruhy), vrstevnice z map
+  a písmo Sofia Sans, navržené pro městský orientační systém.
+*/
+
 :root {
-  --bg: #f2f2f7;
+  --spruce: #0e4b36;
+  --spruce-deep: #0a3829;
+  --yellow: #ffc629;
+  --paper: #f4f6f1;
   --surface: #ffffff;
-  --surface-2: #e9e9ee;
-  --text: #1c1c1e;
-  --text-2: #6e6e73;
-  --separator: rgba(60, 60, 67, 0.14);
-  --accent: #1f9d55;
-  --accent-soft: rgba(31, 157, 85, 0.12);
-  --on-accent: #ffffff;
-  --danger: #d70015;
-  --radius: 20px;
-  --shadow: 0 1px 2px rgba(0, 0, 0, 0.04), 0 8px 24px rgba(0, 0, 0, 0.06);
+  --ink: #12241c;
+  --ink-2: #56675d;
+  --line: rgba(18, 36, 28, 0.18);
+  --danger: #c8102e;
+
+  --trail-green: #1e8a4c;
+  --trail-blue: #1d62b8;
+  --trail-red: #d8232a;
+  --trail-yellow: #f2b705;
+  --trail-brown: #9a5b34;
+
+  --display: "Sofia Sans Extra Condensed Variable", "Arial Narrow", sans-serif;
+  --text: "Sofia Sans Variable", system-ui, sans-serif;
+  --r: 14px;
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --bg: #000000;
-    --surface: #1c1c1e;
-    --surface-2: #2c2c2e;
-    --text: #f5f5f7;
-    --text-2: #98989f;
-    --separator: rgba(84, 84, 88, 0.5);
-    --accent: #30d158;
-    --accent-soft: rgba(48, 209, 88, 0.16);
-    --on-accent: #00210c;
-    --danger: #ff453a;
-    --shadow: none;
+    --paper: #0b1f17;
+    --surface: #12301f;
+    --ink: #eef3ec;
+    --ink-2: #9db0a4;
+    --line: rgba(238, 243, 236, 0.2);
+    --danger: #ff6b6b;
   }
 }
 
@@ -37,126 +45,55 @@
 html,
 body {
   margin: 0;
-  background: var(--bg);
-  color: var(--text);
-  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", "Segoe UI", system-ui, sans-serif;
-  font-size: 17px;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--text);
+  font-size: 18px;
   line-height: 1.4;
   -webkit-font-smoothing: antialiased;
 }
 
 a {
-  color: var(--accent);
-  text-decoration: none;
+  color: inherit;
 }
 
 button,
 input,
-textarea,
-select {
+textarea {
   font: inherit;
   color: inherit;
 }
 
+p {
+  margin: 0;
+}
+
+/* ---------- Plátno ---------- */
+
 .screen {
+  position: relative;
   min-height: 100dvh;
   max-width: 480px;
   margin: 0 auto;
-  padding: max(20px, env(safe-area-inset-top)) 20px max(24px, env(safe-area-inset-bottom));
+  padding: max(20px, env(safe-area-inset-top)) 22px max(24px, env(safe-area-inset-bottom));
   display: flex;
   flex-direction: column;
 }
 
+/* Tmavé obrazovky (úvod, navigace) jdou přes celou šířku. */
+.bleed {
+  position: relative;
+  background: var(--spruce);
+  color: #ffffff;
+  overflow: hidden;
+}
+
+.bleed .screen {
+  z-index: 1;
+}
+
 .spacer {
   flex: 1;
-}
-
-.nav {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  min-height: 44px;
-  margin-bottom: 8px;
-}
-
-.nav a,
-.nav button {
-  background: none;
-  border: 0;
-  padding: 8px 0;
-  color: var(--accent);
-  cursor: pointer;
-}
-
-.large-title {
-  font-size: 34px;
-  line-height: 1.12;
-  font-weight: 700;
-  letter-spacing: -0.02em;
-  margin: 0 0 6px;
-  text-wrap: balance;
-}
-
-.subtitle {
-  color: var(--text-2);
-  margin: 0 0 24px;
-}
-
-.section-label {
-  font-size: 13px;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-  color: var(--text-2);
-  margin: 20px 4px 8px;
-}
-
-.card {
-  background: var(--surface);
-  border-radius: var(--radius);
-  padding: 16px;
-  box-shadow: var(--shadow);
-}
-
-.btn {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  width: 100%;
-  min-height: 54px;
-  padding: 0 20px;
-  border: 0;
-  border-radius: 16px;
-  background: var(--accent);
-  color: var(--on-accent);
-  font-weight: 600;
-  cursor: pointer;
-  transition: transform 0.12s ease, opacity 0.12s ease;
-}
-
-.btn:active {
-  transform: scale(0.98);
-}
-
-.btn:disabled {
-  opacity: 0.5;
-  cursor: default;
-}
-
-.btn.secondary {
-  background: var(--surface-2);
-  color: var(--text);
-}
-
-.btn.plain {
-  background: none;
-  color: var(--accent);
-  min-height: 44px;
-}
-
-.btn.plain.danger {
-  color: var(--danger);
 }
 
 .stack {
@@ -170,309 +107,120 @@ select {
   gap: 10px;
 }
 
-/* Segmentový přepínač */
-.segmented {
-  display: grid;
-  grid-auto-flow: column;
-  grid-auto-columns: 1fr;
-  gap: 2px;
-  padding: 2px;
-  background: var(--surface-2);
-  border-radius: 12px;
+/* ---------- Písmo ---------- */
+
+.display {
+  font-family: var(--display);
+  font-weight: 800;
+  line-height: 0.88;
+  letter-spacing: -0.005em;
+  margin: 0;
+  text-wrap: balance;
 }
 
-.segmented button {
-  border: 0;
-  background: none;
-  min-height: 40px;
-  border-radius: 10px;
-  font-size: 15px;
-  font-weight: 500;
-  cursor: pointer;
-  white-space: nowrap;
+.display.xl {
+  font-size: clamp(96px, 30vw, 132px);
 }
 
-.segmented button[aria-pressed="true"] {
-  background: var(--surface);
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.12);
-  font-weight: 600;
+.display.l {
+  font-size: 64px;
 }
 
-/* Štítky nálady */
-.chips {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
+.display.m {
+  font-size: 40px;
+  line-height: 0.95;
 }
 
-.chip {
-  border: 0;
-  background: var(--surface);
-  min-height: 40px;
-  padding: 0 16px;
-  border-radius: 999px;
-  font-size: 15px;
-  font-weight: 500;
-  cursor: pointer;
-  box-shadow: var(--shadow);
+.lede {
+  font-size: 20px;
+  line-height: 1.3;
+  color: var(--ink-2);
+  margin-top: 12px;
+  max-width: 22em;
 }
 
-.chip[aria-pressed="true"] {
-  background: var(--accent);
-  color: var(--on-accent);
+.bleed .lede {
+  color: rgba(255, 255, 255, 0.78);
 }
 
-.notice {
-  background: var(--accent-soft);
-  border-radius: 14px;
-  padding: 12px 14px;
-  font-size: 15px;
-}
-
-.notice.error {
-  background: rgba(215, 0, 21, 0.1);
-  color: var(--danger);
+.label {
+  font-size: 16px;
+  font-weight: 700;
+  margin: 26px 0 10px;
 }
 
 .footnote {
-  font-size: 13px;
-  color: var(--text-2);
-  text-align: center;
-}
-
-/* Úvod */
-.home-hero {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  text-align: center;
-  gap: 28px;
-}
-
-.wordmark {
   font-size: 15px;
-  font-weight: 700;
-  letter-spacing: 0.18em;
-  color: var(--text-2);
+  color: var(--ink-2);
+  text-align: center;
 }
 
-.go-button {
-  width: 220px;
-  height: 220px;
-  border-radius: 50%;
-  border: 0;
-  background: var(--accent);
-  color: var(--on-accent);
-  font-size: 28px;
-  font-weight: 700;
-  letter-spacing: -0.01em;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  box-shadow: 0 0 0 14px var(--accent-soft), 0 20px 50px rgba(31, 157, 85, 0.35);
-  animation: breathe 3.2s ease-in-out infinite;
-  cursor: pointer;
+.bleed .footnote {
+  color: rgba(255, 255, 255, 0.7);
 }
 
-.go-button:active {
-  transform: scale(0.97);
-}
+/* ---------- Turistická značka ---------- */
 
-@keyframes breathe {
-  0%,
-  100% {
-    box-shadow: 0 0 0 14px var(--accent-soft), 0 20px 50px rgba(31, 157, 85, 0.35);
-  }
-  50% {
-    box-shadow: 0 0 0 26px var(--accent-soft), 0 20px 50px rgba(31, 157, 85, 0.35);
-  }
-}
-
-/* Navigace */
-.compass-wrap {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 28px;
-}
-
-.compass {
-  position: relative;
-  width: min(72vw, 300px);
+.marker {
+  --c: var(--trail-green);
+  flex: none;
+  display: inline-block;
+  width: 24px;
   aspect-ratio: 1;
-  border-radius: 50%;
-  background: var(--surface);
-  box-shadow: var(--shadow);
+  border-radius: 3px;
+  background: linear-gradient(#ffffff 0 33.4%, var(--c) 33.4% 66.6%, #ffffff 66.6%);
+  box-shadow: 0 0 0 1px rgba(18, 36, 28, 0.35);
+}
+
+.marker.nature { --c: var(--trail-green); }
+.marker.view { --c: var(--trail-blue); }
+.marker.culture { --c: var(--trail-red); }
+.marker.hidden { --c: var(--trail-yellow); }
+.marker.chill { --c: var(--trail-brown); }
+
+.brand {
   display: flex;
   align-items: center;
-  justify-content: center;
+  gap: 10px;
+  font-weight: 800;
+  font-size: 18px;
 }
 
-.compass svg {
-  width: 46%;
-  height: 46%;
-  transition: transform 0.25s ease-out;
-  color: var(--accent);
+.brand .marker {
+  --c: var(--yellow);
+  width: 22px;
+  box-shadow: none;
 }
 
-.compass .north {
+/* ---------- Vrstevnice ---------- */
+
+.contours {
   position: absolute;
-  inset: 0;
-  transition: transform 0.25s ease-out;
+  inset: -20% -40%;
+  width: 180%;
+  height: 140%;
+  color: rgba(255, 255, 255, 0.13);
+  pointer-events: none;
+  animation: drift 70s ease-in-out infinite alternate;
 }
 
-.compass .north span {
-  position: absolute;
-  top: 10px;
-  left: 50%;
-  transform: translateX(-50%);
-  font-size: 13px;
-  font-weight: 700;
-  color: var(--text-2);
-}
-
-.distance {
-  font-size: 64px;
-  line-height: 1;
-  font-weight: 700;
-  letter-spacing: -0.03em;
-  font-variant-numeric: tabular-nums;
-}
-
-.hint {
-  color: var(--text-2);
-  text-align: center;
-  min-height: 1.4em;
-}
-
-.progress {
-  width: 100%;
-  height: 6px;
-  border-radius: 3px;
-  background: var(--surface-2);
-  overflow: hidden;
-}
-
-.progress > div {
-  height: 100%;
-  background: var(--accent);
-  border-radius: 3px;
-  transition: width 0.4s ease;
-}
-
-.badge {
-  font-size: 12px;
-  font-weight: 700;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  background: var(--surface-2);
-  color: var(--text-2);
-  padding: 4px 10px;
-  border-radius: 999px;
-}
-
-/* Odhalení */
-.reveal {
-  animation: reveal 0.7s cubic-bezier(0.2, 0.8, 0.2, 1) both;
-}
-
-@keyframes reveal {
+@keyframes drift {
   from {
-    opacity: 0;
-    transform: translateY(24px) scale(0.96);
+    transform: translate3d(-3%, -2%, 0) rotate(-4deg);
   }
   to {
-    opacity: 1;
-    transform: none;
+    transform: translate3d(3%, 2%, 0) rotate(5deg);
   }
 }
 
-.reveal-kicker {
-  font-size: 15px;
-  font-weight: 600;
-  color: var(--accent);
-  margin: 24px 0 6px;
-}
+/* ---------- Horní lišta ---------- */
 
-.tip {
-  border-top: 1px solid var(--separator);
-  margin-top: 14px;
-  padding-top: 14px;
-}
-
-.tip strong {
-  display: block;
-  font-size: 13px;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-  color: var(--text-2);
-  margin-bottom: 2px;
-}
-
-/* Formulář */
-.field {
-  display: block;
-  background: var(--surface);
-  border-radius: 14px;
-  padding: 10px 14px;
-}
-
-.field span {
-  display: block;
-  font-size: 13px;
-  color: var(--text-2);
-}
-
-.field input,
-.field textarea {
-  width: 100%;
-  border: 0;
-  outline: 0;
-  background: none;
-  padding: 2px 0;
-  resize: none;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  * {
-    animation: none !important;
-    transition: none !important;
-  }
-}
-
-/* ---------- v0.2: sjednocený vzhled ---------- */
-
-body {
-  background:
-    radial-gradient(120% 60% at 50% -10%, var(--accent-soft), transparent 60%),
-    var(--bg);
-  background-attachment: fixed;
-}
-
-.screen {
-  animation: enter 0.35s cubic-bezier(0.2, 0.8, 0.2, 1) both;
-}
-
-@keyframes enter {
-  from {
-    opacity: 0;
-    transform: translateY(8px);
-  }
-  to {
-    opacity: 1;
-    transform: none;
-  }
-}
-
-.title-2 {
-  font-size: 22px;
-  font-weight: 700;
-  letter-spacing: -0.01em;
-  margin: 0 0 16px;
+.nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 44px;
+  margin-bottom: 14px;
 }
 
 .nav a,
@@ -481,128 +229,289 @@ body {
   align-items: center;
   gap: 2px;
   margin-left: -6px;
-  font-size: 17px;
+  padding: 8px 6px 8px 0;
+  border: 0;
+  background: none;
+  font-weight: 700;
+  text-decoration: none;
+  cursor: pointer;
 }
 
-.btn,
-.chip,
-.segmented button,
-.list-row {
+.badge {
+  font-size: 14px;
+  font-weight: 800;
+  padding: 3px 10px;
+  border-radius: 4px;
+  background: var(--yellow);
+  color: #12241c;
+}
+
+/* ---------- Tlačítka ---------- */
+
+.btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  width: 100%;
+  min-height: 58px;
+  padding: 0 20px;
+  border: 2px solid transparent;
+  border-radius: var(--r);
+  background: var(--yellow);
+  color: #12241c;
+  font-weight: 800;
+  font-size: 19px;
+  text-decoration: none;
+  cursor: pointer;
   user-select: none;
   -webkit-user-select: none;
+  transition: transform 0.1s ease;
 }
 
-.btn:focus-visible,
-.chip:focus-visible,
-.segmented button:focus-visible,
-.go-button:focus-visible,
-.list-row:focus-visible,
-.nav a:focus-visible,
-.nav button:focus-visible {
-  outline: 3px solid var(--accent);
-  outline-offset: 2px;
+.btn:active {
+  transform: translateY(2px);
 }
 
-a.btn {
-  text-decoration: none;
+.btn:disabled {
+  opacity: 0.55;
+  cursor: default;
 }
 
-.btn.secondary {
-  background: var(--surface);
-  box-shadow: var(--shadow);
+.btn.ghost {
+  background: none;
+  border-color: currentColor;
+  color: inherit;
 }
 
-.btn.secondary[aria-pressed="true"] {
-  color: var(--danger);
+.btn.ghost[aria-pressed="true"] {
+  background: var(--ink);
+  border-color: var(--ink);
+  color: var(--paper);
 }
 
-/* Přepínač dopravy s ikonami */
-.segmented.with-icons button {
+.btn.text {
+  background: none;
+  color: inherit;
+  min-height: 48px;
+  font-weight: 700;
+  text-decoration: underline;
+  text-underline-offset: 4px;
+  text-decoration-thickness: 2px;
+}
+
+/* Hlavní tlačítko na úvodu: cedule se šipkou. */
+.btn.slab {
+  justify-content: space-between;
+  min-height: 84px;
+  padding: 0 22px 0 24px;
+  font-family: var(--display);
+  font-size: 44px;
+  letter-spacing: 0;
+}
+
+.btn.slab svg {
+  transform: rotate(45deg);
+}
+
+:is(.btn, .chip, .segmented button, .link-row, .list-row, .nav a, .nav button):focus-visible {
+  outline: 3px solid var(--yellow);
+  outline-offset: 3px;
+}
+
+.screen:not(.on-dark) :is(.btn, .chip, .segmented button, .list-row, .nav a):focus-visible {
+  outline-color: var(--ink);
+}
+
+/* ---------- Přepínače ---------- */
+
+.segmented {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: 1fr;
+  border: 2px solid var(--ink);
+  border-radius: var(--r);
+  overflow: hidden;
+}
+
+.segmented button {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   gap: 4px;
-  min-height: 64px;
-  font-size: 13px;
-  color: var(--text-2);
+  min-height: 52px;
+  border: 0;
+  border-left: 2px solid var(--ink);
+  background: none;
+  font-size: 16px;
+  font-weight: 700;
+  cursor: pointer;
+  white-space: nowrap;
 }
 
-.segmented.with-icons button[aria-pressed="true"] {
-  color: var(--accent);
+.segmented button:first-child {
+  border-left: 0;
 }
 
-/* Seznam ve stylu nastavení iOS */
-.list {
-  background: var(--surface);
-  border-radius: var(--radius);
-  box-shadow: var(--shadow);
-  overflow: hidden;
+.segmented.with-icons button {
+  min-height: 72px;
 }
+
+.segmented button[aria-pressed="true"] {
+  background: var(--ink);
+  color: var(--paper);
+}
+
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 44px;
+  padding: 0 16px 0 12px;
+  border: 2px solid var(--line);
+  border-radius: 999px;
+  background: none;
+  font-size: 16px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.chip.plain {
+  padding-left: 16px;
+}
+
+.chip .marker {
+  width: 18px;
+}
+
+.chip[aria-pressed="true"] {
+  border-color: var(--ink);
+  background: var(--ink);
+  color: var(--paper);
+}
+
+/* ---------- Hlášky ---------- */
+
+.notice {
+  border-radius: var(--r);
+  padding: 12px 14px;
+  font-size: 16px;
+  background: rgba(18, 36, 28, 0.07);
+}
+
+.bleed .notice {
+  background: rgba(255, 255, 255, 0.14);
+}
+
+.notice.error {
+  background: var(--danger);
+  color: #ffffff;
+  font-weight: 600;
+}
+
+@media (prefers-color-scheme: dark) {
+  .notice {
+    background: rgba(255, 255, 255, 0.08);
+  }
+  .notice.error {
+    color: #12241c;
+  }
+}
+
+.spinner {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  border: 3px solid var(--line);
+  border-top-color: currentColor;
+  animation: spin 0.8s linear infinite;
+  margin: auto;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* ---------- Úvod ---------- */
+
+.home-title {
+  margin-top: 12vh;
+}
+
+.link-rows {
+  margin-top: 18px;
+}
+
+.link-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  min-height: 54px;
+  padding: 0;
+  border: 0;
+  border-top: 1px solid rgba(255, 255, 255, 0.25);
+  background: none;
+  color: #ffffff;
+  font-weight: 700;
+  text-align: left;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.link-row svg {
+  opacity: 0.7;
+}
+
+/* ---------- Seznamy ---------- */
 
 .list-row {
   display: flex;
   align-items: center;
-  gap: 12px;
-  width: 100%;
-  min-height: 56px;
-  padding: 0 14px;
-  border: 0;
-  background: none;
-  color: var(--text);
-  text-align: left;
-  cursor: pointer;
+  gap: 14px;
+  min-height: 64px;
+  padding: 10px 0;
+  border-top: 1px solid var(--line);
+  text-decoration: none;
 }
 
-.list-row + .list-row {
-  border-top: 1px solid var(--separator);
+.list-row:last-child {
+  border-bottom: 1px solid var(--line);
 }
 
 .list-row .grow {
   flex: 1;
+  font-weight: 700;
+}
+
+.list-row small {
+  display: block;
+  font-size: 15px;
+  font-weight: 400;
+  color: var(--ink-2);
 }
 
 .list-row .chev {
-  color: var(--text-2);
-  opacity: 0.6;
   display: flex;
+  color: var(--ink-2);
 }
 
-.icon-tile {
-  flex: none;
-  width: 34px;
-  height: 34px;
-  border-radius: 10px;
-  background: var(--accent-soft);
-  color: var(--accent);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
+/* ---------- Spodní panel ---------- */
 
-/* Úvod */
-.home-hero {
-  gap: 32px;
-}
-
-.home-hero .large-title {
-  font-size: 40px;
-}
-
-.go-button {
-  text-decoration: none;
-  background: linear-gradient(160deg, #35c46f, #178a48);
-  color: #ffffff;
-}
-
-/* Spodní panel */
 .sheet-backdrop {
   position: fixed;
   inset: 0;
   z-index: 10;
-  background: rgba(0, 0, 0, 0.35);
-  -webkit-backdrop-filter: blur(6px);
-  backdrop-filter: blur(6px);
+  background: rgba(6, 26, 18, 0.6);
   display: flex;
   align-items: flex-end;
   justify-content: center;
@@ -612,38 +521,43 @@ a.btn {
 .sheet {
   width: 100%;
   max-width: 480px;
-  background: var(--bg);
-  border-radius: 28px 28px 0 0;
-  padding: 10px 20px max(24px, env(safe-area-inset-bottom));
-  animation: sheet-up 0.35s cubic-bezier(0.2, 0.8, 0.2, 1) both;
-}
-
-.sheet-grabber {
-  width: 36px;
-  height: 5px;
-  border-radius: 3px;
-  background: var(--separator);
-  margin: 0 auto 18px;
+  background: var(--paper);
+  color: var(--ink);
+  border-radius: 24px 24px 0 0;
+  padding: 28px 22px max(24px, env(safe-area-inset-bottom));
+  animation: sheet-up 0.32s cubic-bezier(0.2, 0.8, 0.2, 1) both;
 }
 
 .steps {
   list-style: none;
-  margin: 0 0 24px;
+  margin: 22px 0 26px;
   padding: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
+  counter-reset: step;
 }
 
 .steps li {
-  display: flex;
-  gap: 12px;
+  counter-increment: step;
+  display: grid;
+  grid-template-columns: 40px 1fr;
+  padding: 14px 0;
+  border-top: 1px solid var(--line);
+}
+
+.steps li::before {
+  content: counter(step);
+  font-family: var(--display);
+  font-weight: 800;
+  font-size: 40px;
+  line-height: 0.9;
+}
+
+.steps strong {
+  display: block;
 }
 
 .steps p {
-  margin: 2px 0 0;
-  color: var(--text-2);
-  font-size: 15px;
+  color: var(--ink-2);
+  font-size: 16px;
 }
 
 @keyframes fade {
@@ -658,9 +572,24 @@ a.btn {
   }
 }
 
-/* Kompas */
+/* ---------- Navigace ---------- */
+
+.compass-wrap {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 18px;
+}
+
 .compass {
-  background: radial-gradient(circle at 50% 35%, var(--surface), var(--surface) 60%, var(--surface-2));
+  position: relative;
+  align-self: center;
+  width: min(74vw, 300px);
+  aspect-ratio: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .compass .ticks {
@@ -668,195 +597,363 @@ a.btn {
   inset: 0;
   width: 100%;
   height: 100%;
-  color: var(--text-2);
   transition: transform 0.25s ease-out;
 }
 
 .compass .arrow {
-  width: 44%;
-  height: 44%;
-  filter: drop-shadow(0 6px 14px rgba(31, 157, 85, 0.35));
+  width: 52%;
+  height: 52%;
+  color: var(--yellow);
+  transition: transform 0.25s ease-out;
+}
+
+.distance {
+  font-family: var(--display);
+  font-weight: 800;
+  font-size: clamp(120px, 40vw, 168px);
+  line-height: 0.92;
+  font-variant-numeric: tabular-nums;
 }
 
 .distance small {
-  font-size: 28px;
+  font-size: 0.36em;
+  margin-left: 6px;
+}
+
+.hint {
+  font-size: 20px;
   font-weight: 600;
-  letter-spacing: 0;
-  color: var(--text-2);
-  margin-left: 4px;
+  min-height: 1.4em;
+  margin-top: 6px;
+  color: rgba(255, 255, 255, 0.85);
 }
 
-/* Odhalení */
-.hero {
+/* Ukazatel postupu jako značená cesta. */
+.trail {
   position: relative;
-  height: 190px;
-  border-radius: 28px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: #ffffff;
-  overflow: hidden;
-  margin-bottom: 4px;
+  height: 8px;
+  background: repeating-linear-gradient(90deg, rgba(255, 255, 255, 0.35) 0 10px, transparent 10px 18px);
 }
 
-.hero::before,
-.hero::after {
-  content: "";
-  position: absolute;
-  border-radius: 50%;
-  border: 1.5px solid rgba(255, 255, 255, 0.35);
-  inset: 50%;
-  animation: ring 2.6s ease-out infinite;
+.trail > div {
+  height: 100%;
+  background: var(--yellow);
+  transition: width 0.4s ease;
 }
 
-.hero::after {
-  animation-delay: 1.3s;
+/* ---------- Odhalení ---------- */
+
+.reveal-marker {
+  width: 112px;
+  border-radius: 10px;
+  margin: 18px 0 22px;
+  transform: rotate(-4deg);
+  animation: stamp 0.55s cubic-bezier(0.2, 1.4, 0.3, 1) both;
 }
 
-@keyframes ring {
+@keyframes stamp {
   from {
-    inset: calc(50% - 40px);
-    opacity: 1;
-  }
-  to {
-    inset: calc(50% - 170px);
     opacity: 0;
+    transform: rotate(-14deg) scale(1.6);
   }
 }
 
-.hero .hero-icon {
-  position: relative;
-  z-index: 1;
-  width: 84px;
-  height: 84px;
-  border-radius: 50%;
-  background: rgba(255, 255, 255, 0.22);
-  -webkit-backdrop-filter: blur(8px);
-  backdrop-filter: blur(8px);
-  display: flex;
-  align-items: center;
-  justify-content: center;
+.kicker {
+  font-weight: 800;
+  margin-bottom: 6px;
 }
 
-.hero.nature { background: linear-gradient(150deg, #5fcf8a, #1c8a4c); }
-.hero.view { background: linear-gradient(150deg, #7cc0ff, #2a6fd0); }
-.hero.culture { background: linear-gradient(150deg, #f5c264, #cf7a14); }
-.hero.hidden { background: linear-gradient(150deg, #b6a0f6, #6a48cf); }
-.hero.chill { background: linear-gradient(150deg, #f9ae86, #df5a3c); }
+.reveal-body {
+  font-size: 20px;
+  line-height: 1.35;
+  margin-top: 16px;
+}
 
-.pill {
+.tip {
+  margin-top: 16px;
+  padding-top: 14px;
+  border-top: 1px solid var(--line);
+  color: var(--ink-2);
+}
+
+.tip strong {
+  color: var(--ink);
+}
+
+.category {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  font-size: 13px;
-  font-weight: 600;
-  padding: 5px 10px;
-  border-radius: 999px;
-  background: var(--surface-2);
-  color: var(--text-2);
+  gap: 8px;
+  margin-top: 12px;
+  font-weight: 700;
 }
 
-.spinner {
-  width: 28px;
-  height: 28px;
-  border-radius: 50%;
-  border: 3px solid var(--surface-2);
-  border-top-color: var(--accent);
-  animation: spin 0.8s linear infinite;
-  margin: auto;
+.category .marker {
+  width: 18px;
 }
 
-@keyframes spin {
-  to {
-    transform: rotate(360deg);
-  }
-}
+/* ---------- Formulář ---------- */
 
 .field {
-  box-shadow: var(--shadow);
+  display: block;
+  border: 2px solid var(--line);
+  border-radius: var(--r);
+  padding: 10px 14px;
+  background: var(--surface);
 }
 
 .field:focus-within {
-  outline: 2px solid var(--accent);
+  border-color: var(--ink);
+}
+
+.field span {
+  display: block;
+  font-size: 15px;
+  font-weight: 700;
+}
+
+.field input,
+.field textarea {
+  width: 100%;
+  border: 0;
+  outline: 0;
+  background: none;
+  padding: 2px 0;
+  resize: none;
 }
 
 /* ---------- Mapa a Moje místa ---------- */
 
 .map {
   width: 100%;
-  border-radius: var(--radius);
+  border-radius: var(--r);
+  border: 2px solid var(--ink);
   overflow: hidden;
-  background: var(--surface-2);
-  box-shadow: var(--shadow);
+  background: #e9ece6;
 }
 
 .map-pin {
-  width: 22px;
-  height: 22px;
-  border-radius: 50%;
-  border: 3px solid #ffffff;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
   cursor: pointer;
 }
 
 .maplibregl-popup-content {
-  font: 600 14px/1.3 -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
-  color: #1c1c1e;
-  border-radius: 12px;
+  font: 700 15px/1.3 var(--text);
+  color: #12241c;
+  border-radius: 8px;
   padding: 8px 12px;
 }
 
 .stats {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 10px;
-  margin-bottom: 12px;
+  margin: 6px 0 20px;
 }
 
-.stats .card {
-  padding: 12px;
-  text-align: center;
+.stats div {
+  padding-left: 14px;
+  border-left: 2px solid var(--ink);
 }
 
 .stats strong {
   display: block;
-  font-size: 26px;
-  font-weight: 700;
-  letter-spacing: -0.02em;
+  font-family: var(--display);
+  font-weight: 800;
+  font-size: 64px;
+  line-height: 0.85;
   font-variant-numeric: tabular-nums;
 }
 
 .stats span {
-  font-size: 13px;
-  color: var(--text-2);
-}
-
-.list-row small {
-  display: block;
-  font-size: 13px;
-  color: var(--text-2);
-}
-
-.list-row:has(small) {
-  padding-top: 9px;
-  padding-bottom: 9px;
-}
-
-.empty {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  text-align: center;
-  gap: 8px;
+  font-size: 15px;
+  color: var(--ink-2);
 }
 
 .empty strong {
-  font-size: 20px;
-  margin-top: 8px;
+  display: block;
+  margin-bottom: 6px;
 }
 
-.empty p {
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation: none !important;
+    transition: none !important;
+  }
+}
+
+/* ---------- Spodní lišta záložek ---------- */
+
+.has-tabs {
+  padding-bottom: calc(84px + env(safe-area-inset-bottom));
+}
+
+.tabbar {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 5;
+  background: var(--paper);
+  border-top: 2px solid var(--ink);
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+.tabbar.dark {
+  background: var(--spruce-deep);
+  border-top-color: rgba(255, 255, 255, 0.25);
+  color: #ffffff;
+}
+
+.tabbar > div {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  max-width: 480px;
+  margin: 0 auto;
+}
+
+.tabbar a {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  min-height: 62px;
+  font-size: 14px;
+  font-weight: 700;
+  text-decoration: none;
+  opacity: 0.6;
+}
+
+.tabbar a[aria-current="page"] {
+  opacity: 1;
+}
+
+/* Aktivní záložka má nahoře pruh jako značka. */
+.tabbar a[aria-current="page"]::before {
+  content: "";
+  position: absolute;
+  top: -2px;
+  left: 28%;
+  right: 28%;
+  height: 5px;
+  background: var(--yellow);
+}
+
+.tabbar a:focus-visible {
+  outline: 3px solid var(--yellow);
+  outline-offset: -3px;
+}
+
+/* ---------- Profil ---------- */
+
+.badges {
+  list-style: none;
   margin: 0;
-  color: var(--text-2);
-  max-width: 280px;
+  padding: 0;
+}
+
+.badges li {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 12px 0;
+  border-top: 1px solid var(--line);
+}
+
+.badges li:last-child {
+  border-bottom: 1px solid var(--line);
+}
+
+.badges .seal {
+  flex: none;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 2px dashed var(--line);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--ink-2);
+}
+
+.badges li.earned .seal {
+  border: 0;
+  background: var(--yellow);
+  color: #12241c;
+}
+
+.badges strong {
+  display: block;
+}
+
+.badges small {
+  font-size: 15px;
+  color: var(--ink-2);
+}
+
+.setting {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  width: 100%;
+  min-height: 60px;
+  padding: 8px 0;
+  border: 0;
+  border-top: 1px solid var(--line);
+  background: none;
+  font-weight: 700;
+  text-align: left;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.setting:last-child {
+  border-bottom: 1px solid var(--line);
+}
+
+.setting small {
+  display: block;
+  font-size: 15px;
+  font-weight: 400;
+  color: var(--ink-2);
+}
+
+.switch {
+  flex: none;
+  width: 52px;
+  height: 32px;
+  border-radius: 999px;
+  border: 2px solid var(--ink);
+  padding: 2px;
+  display: flex;
+}
+
+.switch::after {
+  content: "";
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: var(--ink);
+  transition: transform 0.15s ease;
+}
+
+.setting[aria-checked="true"] .switch {
+  background: var(--yellow);
+  border-color: #12241c;
+}
+
+.setting[aria-checked="true"] .switch::after {
+  background: #12241c;
+  transform: translateX(20px);
+}
+
+.icon-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  margin: 0 -8px 0 0 !important;
+  padding: 0 !important;
 }

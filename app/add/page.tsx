@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useState } from "react";
 import { Icon } from "@/components/icons";
+import { Marker } from "@/components/marker";
 import { CATEGORY_LABEL, type Category } from "@/lib/types";
 
 const CATEGORIES = Object.keys(CATEGORY_LABEL) as Category[];
@@ -66,13 +67,10 @@ export default function Add() {
     return (
       <main className="screen">
         <div className="spacer" />
-        <span className="icon-tile" style={{ width: 56, height: 56, borderRadius: 18, marginBottom: 20 }}>
-          <Icon name="check" size={30} />
-        </span>
-        <h1 className="large-title">Díky, máme to</h1>
-        <p className="subtitle">Místo se objeví v appce, jakmile ho schválíme.</p>
+        <h1 className="display l">Díky, máme to</h1>
+        <p className="lede">Místo se objeví v appce, jakmile ho schválíme.</p>
         <div className="spacer" />
-        <Link href="/" className="btn">
+        <Link href="/profile" className="btn">
           Hotovo
         </Link>
       </main>
@@ -82,10 +80,10 @@ export default function Add() {
   return (
     <main className="screen">
       <div className="nav">
-        <Link href="/"><Icon name="back" />Zpět</Link>
+        <Link href="/profile"><Icon name="back" />Zpět</Link>
       </div>
-      <h1 className="large-title">Přidat místo</h1>
-      <p className="subtitle">Stůj přímo na místě, uložíme jeho polohu z tvého telefonu.</p>
+      <h1 className="display l">Přidat místo</h1>
+      <p className="lede" style={{ marginBottom: 22 }}>Stůj přímo na místě, uložíme jeho polohu z tvého telefonu.</p>
 
       <form className="stack" onSubmit={submit} style={{ flex: 1 }}>
         <label className="field">
@@ -101,16 +99,17 @@ export default function Add() {
           <input value={tip} onChange={(e) => setTip(e.target.value)} maxLength={200} />
         </label>
 
-        <div className="section-label" style={{ marginBottom: 0 }}>Kategorie</div>
+        <div className="label" style={{ margin: "12px 0 0" }}>Kategorie</div>
         <div className="chips">
           {CATEGORIES.map((c) => (
             <button key={c} type="button" className="chip" aria-pressed={category === c} onClick={() => setCategory(c)}>
+              <Marker category={c} />
               {CATEGORY_LABEL[c]}
             </button>
           ))}
         </div>
 
-        <button type="button" className="btn secondary" onClick={locate} disabled={locating} style={{ marginTop: 10 }}>
+        <button type="button" className="btn ghost" onClick={locate} disabled={locating} style={{ marginTop: 10 }}>
           <Icon name={coords ? "check" : "pin"} size={20} />
           {locating ? "Zjišťuji polohu…" : coords ? "Poloha uložena" : "Uložit moji polohu"}
         </button>

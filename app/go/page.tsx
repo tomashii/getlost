@@ -5,6 +5,8 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { HowSheet } from "@/components/how-sheet";
 import { Icon } from "@/components/icons";
+import { Marker } from "@/components/marker";
+import { unlockSpeech } from "@/lib/cues";
 import { loadSeen, saveTrip } from "@/lib/trip-store";
 import { CATEGORY_LABEL, MODE_LABEL, type Category, type Mode, type TripTarget } from "@/lib/types";
 
@@ -43,6 +45,7 @@ export default function Go() {
 
   /** Před úplně prvním výletem ukaž, jak to funguje. */
   function begin() {
+    unlockSpeech();
     let seenIntro = false;
     try {
       seenIntro = localStorage.getItem("getlost.intro") === "1";
@@ -110,10 +113,10 @@ export default function Go() {
       <div className="nav">
         <Link href="/"><Icon name="back" />Zpět</Link>
       </div>
-      <h1 className="large-title">Jak se chceš ztratit?</h1>
-      <p className="subtitle">Vybereme místo, které stihneš. Kam jdeš, ti neřekneme.</p>
+      <h1 className="display l">Jak se chceš ztratit?</h1>
+      <p className="lede">Vybereme místo, které stihneš. Kam jdeš, ti neřekneme.</p>
 
-      <div className="section-label">Doprava</div>
+      <div className="label">Doprava</div>
       <div className="segmented with-icons">
         {MODES.map((m) => (
           <button key={m} type="button" aria-pressed={mode === m} onClick={() => setMode(m)}>
@@ -123,7 +126,7 @@ export default function Go() {
         ))}
       </div>
 
-      <div className="section-label">Kolik máš času</div>
+      <div className="label">Kolik máš času</div>
       <div className="segmented">
         {TIMES.map((t) => (
           <button key={t.minutes} type="button" aria-pressed={minutes === t.minutes} onClick={() => setMinutes(t.minutes)}>
@@ -132,13 +135,14 @@ export default function Go() {
         ))}
       </div>
 
-      <div className="section-label">Nálada</div>
+      <div className="label">Nálada</div>
       <div className="chips">
-        <button type="button" className="chip" aria-pressed={category === null} onClick={() => setCategory(null)}>
+        <button type="button" className="chip plain" aria-pressed={category === null} onClick={() => setCategory(null)}>
           Cokoliv
         </button>
         {CATEGORIES.map((c) => (
           <button key={c} type="button" className="chip" aria-pressed={category === c} onClick={() => setCategory(c)}>
+            <Marker category={c} />
             {CATEGORY_LABEL[c]}
           </button>
         ))}
@@ -149,7 +153,7 @@ export default function Go() {
       <div className="stack" style={{ marginTop: 24 }}>
         {error && <div className="notice error" role="alert">{error}</div>}
         {offerDemo && (
-          <button type="button" className="btn secondary" disabled={busy} onClick={() => start(true)}>
+          <button type="button" className="btn ghost" disabled={busy} onClick={() => start(true)}>
             Vyzkoušet demo z centra Prahy
           </button>
         )}

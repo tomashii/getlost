@@ -1,4 +1,6 @@
 import type { Metadata, Viewport } from "next";
+import "@fontsource-variable/sofia-sans/index.css";
+import "@fontsource-variable/sofia-sans-extra-condensed/index.css";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -12,8 +14,8 @@ export const viewport: Viewport = {
   initialScale: 1,
   viewportFit: "cover",
   themeColor: [
-    { media: "(prefers-color-scheme: light)", color: "#f2f2f7" },
-    { media: "(prefers-color-scheme: dark)", color: "#000000" },
+    { media: "(prefers-color-scheme: light)", color: "#f4f6f1" },
+    { media: "(prefers-color-scheme: dark)", color: "#0b1f17" },
   ],
 };
 
