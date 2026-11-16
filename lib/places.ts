@@ -5,6 +5,8 @@ import type { Category, Mode, Place, TripTarget } from "./types";
 
 const COLUMNS = "id,name,category,lat,lng,description,tip,radius_m";
 
+const LEGACY_COLUMNS = "id,name,category,lat,lng,description,tip";
+
 type Row = Place & { radius_m?: number };
 
 const localPlaces: Row[] = (seed as Array<Omit<Place, "id"> & { slug: string; radius?: number }>).map((p) => ({
@@ -22,7 +24,11 @@ const localPlaces: Row[] = (seed as Array<Omit<Place, "id"> & { slug: string; ra
 export async function listPlaces(): Promise<Row[]> {
   const supabase = getSupabase();
   if (!supabase) return localPlaces;
-  const { data, error } = await supabase.from("places").select(COLUMNS).eq("status", "approved");
+  let { data, error } = await supabase.from("places").select(COLUMNS).eq("status", "approved");
+  // 42703 = databáze ještě nemá sloupec radius_m (starší schéma). Načti bez něj.
+  if (error?.code === "42703") {
+    ({ data, error } = await supabase.from("places").select(LEGACY_COLUMNS).eq("status", "approved"));
+  }
   if (error) throw new Error(error.message);
   return (data ?? []) as Row[];
 }
@@ -32,7 +38,7 @@ export async function getPlace(id: string): Promise<Place | null> {
   if (!supabase) return localPlaces.find((p) => p.id === id) ?? null;
   const { data, error } = await supabase
     .from("places")
-    .select(COLUMNS)
+    .select(LEGACY_COLUMNS)
     .eq("id", id)
     .eq("status", "approved")
     .maybeSingle();
@@ -50,7 +56,7 @@ export async function getPlaces(ids: string[]): Promise<Place[]> {
   const uuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
   const valid = ids.filter((id) => uuid.test(id));
   if (valid.length === 0) return [];
-  const { data, error } = await supabase.from("places").select(COLUMNS).in("id", valid).eq("status", "approved");
+  const { data, error } = await supabase.from("places").select(LEGACY_COLUMNS).in("id", valid).eq("status", "approved");
   if (error) throw new Error(error.message);
   return (data ?? []) as Place[];
 }
