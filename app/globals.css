@@ -1001,3 +1001,16 @@ label.cell {
     transition: none !important;
   }
 }
+
+/* Na širokém displeji je panel jen uprostřed, mapa proto může být přes celou výšku. */
+@media (min-width: 600px) {
+  .home .map {
+    inset: 0;
+  }
+
+  .panel {
+    bottom: 16px;
+    border-radius: 32px;
+    padding-bottom: 92px;
+  }
+}
