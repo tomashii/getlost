@@ -3,7 +3,6 @@
 import Link from "next/link";
 import { useState } from "react";
 import { Icon } from "@/components/icons";
-import { Marker } from "@/components/marker";
 import { CATEGORY_LABEL, type Category } from "@/lib/types";
 
 const CATEGORIES = Object.keys(CATEGORY_LABEL) as Category[];
@@ -66,10 +65,13 @@ export default function Add() {
   if (done) {
     return (
       <main className="screen">
-        <div className="spacer" />
-        <h1 className="display l">Díky, máme to</h1>
-        <p className="lede">Místo se objeví v appce, jakmile ho schválíme.</p>
-        <div className="spacer" />
+        <div className="empty">
+          <span className="glyph round big">
+            <Icon name="check" size={26} />
+          </span>
+          <h1 className="title-1" style={{ marginTop: 10 }}>Díky, máme to</h1>
+          <p>Místo se objeví v appce, jakmile ho schválíme.</p>
+        </div>
         <Link href="/profile" className="btn">
           Hotovo
         </Link>
@@ -80,45 +82,52 @@ export default function Add() {
   return (
     <main className="screen">
       <div className="nav">
-        <Link href="/profile"><Icon name="back" />Zpět</Link>
+        <Link href="/profile" className="nav-link">
+          <Icon name="back" />
+          Profil
+        </Link>
       </div>
-      <h1 className="display l">Přidat místo</h1>
-      <p className="lede" style={{ marginBottom: 22 }}>Stůj přímo na místě, uložíme jeho polohu z tvého telefonu.</p>
+      <h1 className="large-title">Přidat místo</h1>
 
-      <form className="stack" onSubmit={submit} style={{ flex: 1 }}>
-        <label className="field">
-          <span>Název</span>
-          <input value={name} onChange={(e) => setName(e.target.value)} maxLength={80} required />
-        </label>
-        <label className="field">
-          <span>Proč sem jít</span>
-          <textarea value={description} onChange={(e) => setDescription(e.target.value)} rows={3} maxLength={400} required />
-        </label>
-        <label className="field">
-          <span>Tip (nepovinné)</span>
-          <input value={tip} onChange={(e) => setTip(e.target.value)} maxLength={200} />
-        </label>
+      <form onSubmit={submit} style={{ flex: 1, display: "flex", flexDirection: "column" }}>
+        <div className="group" style={{ marginTop: 16 }}>
+          <label className="cell">
+            <input value={name} onChange={(e) => setName(e.target.value)} maxLength={80} required placeholder="Název" aria-label="Název" />
+          </label>
+          <label className="cell">
+            <textarea value={description} onChange={(e) => setDescription(e.target.value)} rows={3} maxLength={400} required placeholder="Proč sem jít" aria-label="Proč sem jít" />
+          </label>
+          <label className="cell">
+            <input value={tip} onChange={(e) => setTip(e.target.value)} maxLength={200} placeholder="Tip (nepovinné)" aria-label="Tip" />
+          </label>
+        </div>
 
-        <div className="label" style={{ margin: "12px 0 0" }}>Kategorie</div>
-        <div className="chips">
+        <h2 className="section-header">Kategorie</h2>
+        <div className="chips" style={{ padding: "0 4px" }}>
           {CATEGORIES.map((c) => (
             <button key={c} type="button" className="chip" aria-pressed={category === c} onClick={() => setCategory(c)}>
-              <Marker category={c} />
+              <span className={`dot ${c}`} />
               {CATEGORY_LABEL[c]}
             </button>
           ))}
         </div>
 
-        <button type="button" className="btn ghost" onClick={locate} disabled={locating} style={{ marginTop: 10 }}>
-          <Icon name={coords ? "check" : "pin"} size={20} />
-          {locating ? "Zjišťuji polohu…" : coords ? "Poloha uložena" : "Uložit moji polohu"}
-        </button>
+        <h2 className="section-header">Poloha</h2>
+        <div className="group">
+          <button type="button" className="cell" onClick={locate} disabled={locating} style={{ color: "var(--tint)" }}>
+            <Icon name={coords ? "check" : "location"} size={20} />
+            <span className="grow">{locating ? "Zjišťuji polohu…" : coords ? "Poloha uložena" : "Použít moji polohu"}</span>
+          </button>
+        </div>
+        <p className="section-footer">Stůj přímo na místě, uložíme jeho polohu z tvého telefonu.</p>
 
-        <div className="spacer" />
-        {error && <div className="notice error" role="alert">{error}</div>}
-        <button type="submit" className="btn" disabled={busy}>
-          {busy ? "Odesílám…" : "Odeslat ke schválení"}
-        </button>
+        <div className="spacer" style={{ minHeight: 20 }} />
+        <div className="stack">
+          {error && <div className="notice error" role="alert">{error}</div>}
+          <button type="submit" className="btn" disabled={busy}>
+            {busy ? "Odesílám…" : "Odeslat ke schválení"}
+          </button>
+        </div>
       </form>
     </main>
   );

@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { HowSheet } from "@/components/how-sheet";
-import { Icon } from "@/components/icons";
+import { Icon, type IconName } from "@/components/icons";
 import { TabBar } from "@/components/tab-bar";
 import { setVoiceEnabled, speak, unlockSpeech, voiceEnabled } from "@/lib/cues";
 import { loadHistory, type HistoryEntry } from "@/lib/trip-store";
@@ -13,12 +13,13 @@ function badges(history: HistoryEntry[]) {
   const km = arrived.reduce((sum, h) => sum + h.distanceM, 0) / 1000;
   const modes = new Set(arrived.map((h) => h.mode)).size;
   const clamp = (n: number, max: number) => Math.min(Math.floor(n), max);
-  return [
-    { name: "První ztracení", text: "Dojdi do svého prvního cíle.", have: clamp(arrived.length, 1), need: 1 },
-    { name: "Pět cílů", text: "Dojdi do pěti cílů.", have: clamp(arrived.length, 5), need: 5 },
-    { name: "Deset kilometrů", text: "Nasbírej deset kilometrů k cíli.", have: clamp(km, 10), need: 10 },
-    { name: "Dvojí doprava", text: "Dojdi do cíle dvěma různými způsoby dopravy.", have: clamp(modes, 2), need: 2 },
+  const list: { name: string; text: string; have: number; need: number; icon: IconName }[] = [
+    { name: "První ztracení", text: "Dojdi do svého prvního cíle", have: clamp(arrived.length, 1), need: 1, icon: "pin" },
+    { name: "Pět cílů", text: "Dojdi do pěti cílů", have: clamp(arrived.length, 5), need: 5, icon: "compass" },
+    { name: "Deset kilometrů", text: "Nasbírej deset kilometrů k cíli", have: clamp(km, 10), need: 10, icon: "walk" },
+    { name: "Dvojí doprava", text: "Dojdi do cíle dvěma způsoby dopravy", have: clamp(modes, 2), need: 2, icon: "bike" },
   ];
+  return list;
 }
 
 export default function Profile() {
@@ -47,55 +48,59 @@ export default function Profile() {
   return (
     <>
       <main className="screen has-tabs">
-        <h1 className="display l" style={{ margin: "20px 0 24px" }}>Profil</h1>
+        <h1 className="large-title" style={{ marginTop: 36 }}>Profil</h1>
 
         <div className="stats">
-          <div>
+          <div className="stat">
             <strong>{history.length}</strong>
             <span>výletů</span>
           </div>
-          <div>
+          <div className="stat">
             <strong>{arrived.length}</strong>
             <span>cílů</span>
           </div>
-          <div>
+          <div className="stat">
             <strong>{km.toFixed(1).replace(".", ",")}</strong>
             <span>km k cíli</span>
           </div>
         </div>
 
-        <h2 className="label">Odznaky</h2>
-        <ul className="badges">
+        <h2 className="section-header">Odznaky</h2>
+        <div className="group">
           {badges(history).map((b) => {
             const earned = b.have >= b.need;
             return (
-              <li key={b.name} className={earned ? "earned" : ""}>
-                <span className="seal">{earned && <Icon name="check" size={22} />}</span>
-                <div>
-                  <strong>{b.name}</strong>
-                  <small>{earned ? "Získáno" : `${b.text} Máš ${b.have} z ${b.need}.`}</small>
-                </div>
-              </li>
+              <div key={b.name} className="cell with-glyph">
+                <span className={`glyph round${earned ? "" : " muted"}`}>
+                  <Icon name={earned ? "check" : b.icon} size={18} />
+                </span>
+                <span className="grow">
+                  {b.name}
+                  <small>{earned ? "Získáno" : b.text}</small>
+                </span>
+                {!earned && <span className="subhead">{b.have}/{b.need}</span>}
+              </div>
             );
           })}
-        </ul>
+        </div>
 
-        <h2 className="label">Nastavení</h2>
-        <div>
-          <button type="button" className="setting" role="switch" aria-checked={voice} onClick={toggleVoice}>
-            <span>
-              Hlasové pokyny
-              <small>Řekne ti, kolik zbývá a jestli jdeš správně, ať nemusíš koukat do mobilu.</small>
-            </span>
+        <h2 className="section-header">Nastavení</h2>
+        <div className="group">
+          <button type="button" className="cell" role="switch" aria-checked={voice} onClick={toggleVoice}>
+            <span className="grow">Hlasové pokyny</span>
             <span className="switch" />
           </button>
-          <button type="button" className="setting" onClick={() => setHow(true)}>
-            Jak to funguje
-            <Icon name="chevron" size={18} />
+        </div>
+        <p className="section-footer">Řekne ti, kolik zbývá a jestli jdeš správně, ať nemusíš koukat do mobilu.</p>
+
+        <div className="group" style={{ marginTop: 24 }}>
+          <button type="button" className="cell" onClick={() => setHow(true)}>
+            <span className="grow">Jak to funguje</span>
+            <span className="chev"><Icon name="chevron" size={16} /></span>
           </button>
-          <Link href="/add" className="setting">
-            Přidat vlastní místo
-            <Icon name="chevron" size={18} />
+          <Link href="/add" className="cell">
+            <span className="grow">Přidat vlastní místo</span>
+            <span className="chev"><Icon name="chevron" size={16} /></span>
           </Link>
         </div>
       </main>

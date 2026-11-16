@@ -6,14 +6,22 @@ create table if not exists public.places (
   id uuid primary key default gen_random_uuid(),
   slug text unique,
   name text not null check (char_length(name) between 3 and 80),
-  category text not null check (category in ('nature','view','culture','hidden','chill')),
+  category text not null check (category in ('nature','view','culture','hidden','chill','food')),
   lat double precision not null check (lat between -90 and 90),
   lng double precision not null check (lng between -180 and 180),
   description text not null check (char_length(description) between 10 and 400),
   tip text check (tip is null or char_length(tip) <= 200),
+  -- Do jaké vzdálenosti od bodu se cíl počítá jako dosažený (velké parky a lesy mají víc).
+  radius_m integer not null default 70 check (radius_m between 30 and 500),
   status text not null default 'pending' check (status in ('pending','approved','rejected')),
   created_at timestamptz not null default now()
 );
+
+-- Úpravy pro databáze založené starší verzí schématu.
+alter table public.places add column if not exists radius_m integer not null default 70 check (radius_m between 30 and 500);
+alter table public.places drop constraint if exists places_category_check;
+alter table public.places add constraint places_category_check
+  check (category in ('nature','view','culture','hidden','chill','food'));
 
 create index if not exists places_status_idx on public.places (status);
 

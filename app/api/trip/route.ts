@@ -3,7 +3,7 @@ import { pickTrip } from "@/lib/places";
 import type { Category, Mode } from "@/lib/types";
 
 const MODES: Mode[] = ["walk", "bike", "transit", "car"];
-const CATEGORIES: Category[] = ["nature", "view", "culture", "hidden", "chill"];
+const CATEGORIES: Category[] = ["nature", "view", "culture", "hidden", "chill", "food"];
 
 export async function POST(request: Request) {
   const body = await request.json().catch(() => null);

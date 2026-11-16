@@ -1,5 +1,5 @@
 export type Mode = "walk" | "bike" | "transit" | "car";
-export type Category = "nature" | "view" | "culture" | "hidden" | "chill";
+export type Category = "nature" | "view" | "culture" | "hidden" | "chill" | "food";
 
 export interface Place {
   id: string;
@@ -17,6 +17,8 @@ export interface TripTarget {
   lat: number;
   lng: number;
   distanceM: number;
+  /** Do jaké vzdálenosti se cíl počítá jako dosažený. */
+  radiusM: number;
   stretched: boolean;
 }
 
@@ -33,4 +35,5 @@ export const CATEGORY_LABEL: Record<Category, string> = {
   culture: "Kultura",
   hidden: "Zákoutí",
   chill: "Pohoda",
+  food: "Jídlo a pití",
 };

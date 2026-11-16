@@ -4,7 +4,6 @@ import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import { Icon } from "@/components/icons";
-import { Marker } from "@/components/marker";
 import { PlacesMap } from "@/components/places-map";
 import { CATEGORY_LABEL, type Place } from "@/lib/types";
 
@@ -78,9 +77,9 @@ export default function Reveal() {
   if (error) {
     return (
       <main className="screen">
-        <div className="spacer" />
-        <div className="notice error" role="alert">{error}</div>
-        <div className="spacer" />
+        <div className="empty">
+          <p>{error}</p>
+        </div>
         <Link href="/" className="btn">
           Zpět na začátek
         </Link>
@@ -97,52 +96,62 @@ export default function Reveal() {
   }
 
   return (
-    <main className="screen">
-      <Marker category={place.category} className="reveal-marker" />
-      <p className="kicker">{arrived ? "Jsi tady" : "Mířil jsi sem"}</p>
-      <h1 className="display l">{place.name}</h1>
-      <p className="category">
-        <Marker category={place.category} />
-        {CATEGORY_LABEL[place.category]}
-      </p>
-      <p className="reveal-body">{place.description}</p>
-      {place.tip && (
-        <p className="tip">
-          <strong>Tip:</strong> {place.tip}
-        </p>
-      )}
-      <div style={{ margin: "20px 0" }}>
-        <PlacesMap places={[place]} height={190} />
+    <>
+      <div className="reveal-map">
+        <PlacesMap places={[place]} />
+        <Link href="/" className="glass-btn reveal-close" aria-label="Zavřít">
+          <Icon name="close" />
+        </Link>
       </div>
 
-      <div className="spacer" />
+      <main className="reveal-card">
+        <div className="grabber" />
+        <p className="kicker">{arrived ? "Jsi tady" : "Mířil jsi sem"}</p>
+        <h1 className="title-1">{place.name}</h1>
+        <p className="category">
+          <span className={`dot ${place.category}`} />
+          {CATEGORY_LABEL[place.category]}
+        </p>
 
-      <div className="stack">
-        <div className="row">
-          <button type="button" className="btn ghost" onClick={like} aria-pressed={liked}>
-            <Icon name="heart" size={20} filled={liked} />
+        <div className="group">
+          <div className="cell">
+            <span className="grow">{place.description}</span>
+          </div>
+          {place.tip && (
+            <div className="cell">
+              <span className="grow">
+                <small style={{ marginBottom: 2 }}>Tip</small>
+                {place.tip}
+              </span>
+            </div>
+          )}
+        </div>
+
+        <div className="row" style={{ margin: "14px 0" }}>
+          <button type="button" className="action" onClick={like} aria-pressed={liked}>
+            <Icon name="heart" filled={liked} />
             {liked ? "Líbí se" : "Líbí se mi"}
           </button>
-          <button type="button" className="btn ghost" onClick={share}>
-            <Icon name={copied ? "check" : "share"} size={20} />
+          <button type="button" className="action" onClick={share}>
+            <Icon name={copied ? "check" : "share"} />
             {copied ? "Zkopírováno" : "Sdílet"}
           </button>
-        </div>
-        {!arrived && (
           <a
-            className="btn ghost"
+            className="action"
             href={`https://www.google.com/maps/search/?api=1&query=${place.lat},${place.lng}`}
             target="_blank"
             rel="noreferrer"
           >
-            <Icon name="map" size={20} />
-            Otevřít v mapách
+            <Icon name="location" />
+            Trasa
           </a>
-        )}
-        <Link href="/go" className="btn">
+        </div>
+
+        <div className="spacer" />
+        <Link href="/" className="btn">
           Ztratit se znovu
         </Link>
-      </div>
-    </main>
+      </main>
+    </>
   );
 }

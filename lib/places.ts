@@ -3,9 +3,11 @@ import { distanceBandM, distanceM } from "./geo";
 import { getSupabase } from "./supabase";
 import type { Category, Mode, Place, TripTarget } from "./types";
 
-const COLUMNS = "id,name,category,lat,lng,description,tip";
+const COLUMNS = "id,name,category,lat,lng,description,tip,radius_m";
 
-const localPlaces: Place[] = (seed as Array<Omit<Place, "id"> & { slug: string }>).map((p) => ({
+type Row = Place & { radius_m?: number };
+
+const localPlaces: Row[] = (seed as Array<Omit<Place, "id"> & { slug: string; radius?: number }>).map((p) => ({
   id: p.slug,
   name: p.name,
   category: p.category,
@@ -13,15 +15,16 @@ const localPlaces: Place[] = (seed as Array<Omit<Place, "id"> & { slug: string }
   lng: p.lng,
   description: p.description,
   tip: p.tip ?? null,
+  radius_m: p.radius ?? 70,
 }));
 
 /** Schválená místa. Ze Supabase, pokud je nastavený, jinak z data/places.json. */
-export async function listPlaces(): Promise<Place[]> {
+export async function listPlaces(): Promise<Row[]> {
   const supabase = getSupabase();
   if (!supabase) return localPlaces;
   const { data, error } = await supabase.from("places").select(COLUMNS).eq("status", "approved");
   if (error) throw new Error(error.message);
-  return (data ?? []) as Place[];
+  return (data ?? []) as Row[];
 }
 
 export async function getPlace(id: string): Promise<Place | null> {
@@ -82,7 +85,7 @@ export async function pickTrip(req: TripRequest): Promise<TripResult> {
   const band = distanceBandM(req.mode, req.minutes);
   const inBand = withDistance.filter((x) => x.d >= band.min && x.d <= band.max);
 
-  let chosen: { p: Place; d: number };
+  let chosen: { p: Row; d: number };
   let stretched = false;
   if (inBand.length > 0) {
     chosen = inBand[Math.floor(Math.random() * inBand.length)];
@@ -103,6 +106,7 @@ export async function pickTrip(req: TripRequest): Promise<TripResult> {
       lat: chosen.p.lat,
       lng: chosen.p.lng,
       distanceM: Math.round(chosen.d),
+      radiusM: chosen.p.radius_m ?? 70,
       stretched,
     },
   };

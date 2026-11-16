@@ -10,9 +10,9 @@ Nudíš se a nevíš kam. Nastavíš dopravu a čas, appka tě vede jen šipkou 
 | Data | Supabase (Postgres), bez přihlašování | Účty nejsou potřeba, dokud se neověří, že výlety lidi baví |
 | Navigace | Šipka + vzdálenost vzdušnou čarou, žádná mapa | Mapa s trasou prozradí cíl; šipka je i jednodušší |
 | Mapa | Jen u už odhalených míst (MapLibre + OpenFreeMap, zdarma bez klíče) | Nic neprozradí a ukáže, kde už jsi byl |
-| Město | Jen Praha, 30 ručně vybraných míst | Kvalita míst rozhoduje, jestli se uživatel vrátí |
+| Město | Jen Praha, 134 míst v šesti kategoriích včetně tipů místních | Kvalita míst rozhoduje, jestli se uživatel vrátí |
 | Jazyk | Čeština | První uživatelé budou z Prahy; angličtina až s druhým městem |
-| Vzhled | Vlastní identita z orientace v terénu: turistická značka, vrstevnice, smrková zelená + žlutá, písmo Sofia Sans (navržené pro městský orientační systém) | Ať to nevypadá jako šablona |
+| Vzhled | Čistý Apple styl: systémové písmo, mapa s panelem na úvodu, skleněná lišta záložek, seskupené seznamy, jedna zelená, světlý i tmavý režim | Zadání |
 
 ## Co je hotové (v0.1)
 
@@ -33,7 +33,8 @@ Nudíš se a nevíš kam. Nastavíš dopravu a čas, appka tě vede jen šipkou 
 
 ## Co zatím chybí nebo je zjednodušené
 
-- **Souřadnice míst jsou přibližné.** Zadával jsem je z hlavy a neověřoval. Před ostrým testem každé místo zkontroluj v mapě, jinak se cíl neodhalí na správném místě.
+- **Souřadnice jsou dohledané v OpenStreetMap**, ale nikdo je neprošel v terénu. U pár míst (Krymská, Náplavka, vyhlídky ve velkých parcích) je bod odhad v rámci místa. Velké parky a lesy mají větší okruh, ve kterém se cíl počítá jako dosažený.
+- **Podniky (kategorie Jídlo a pití) nemají ověřenou otevírací dobu** ani to, že stále fungují.
 - **MHD a auto** mají jen šipku vzdušnou čarou. Skutečná navigace krok za krokem bez prozrazení cíle je úkol na verzi 0.3.
 - **Lajky** se ukládají, ale nikde se nezobrazují jejich počty.
 - **Schvalování míst** je ruční v Supabase (změna `status` na `approved`).
@@ -43,7 +44,7 @@ Nudíš se a nevíš kam. Nastavíš dopravu a čas, appka tě vede jen šipkou 
 ## Roadmapa
 
 ### v0.2: ověření nápadu (2–3 týdny)
-1. Zkontrolovat souřadnice a rozšířit Prahu na 100+ míst
+1. Projít místa v terénu a vyřadit ta, která nefungují
 2. Otevírací doby a "jen za světla" u míst, kde to dává smysl
 3. Fotka místa na obrazovce odhalení
 4. Sdílecí karta do Instagram Stories (obrázek s názvem místa a ušlou vzdáleností)

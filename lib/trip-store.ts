@@ -7,6 +7,7 @@ export interface ActiveTrip {
   startLat: number;
   startLng: number;
   startDistanceM: number;
+  radiusM?: number;
   mode: Mode;
   demo: boolean;
   stretched: boolean;

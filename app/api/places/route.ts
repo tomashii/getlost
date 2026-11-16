@@ -3,7 +3,7 @@ import { getPlaces } from "@/lib/places";
 import { getSupabase } from "@/lib/supabase";
 import type { Category } from "@/lib/types";
 
-const CATEGORIES: Category[] = ["nature", "view", "culture", "hidden", "chill"];
+const CATEGORIES: Category[] = ["nature", "view", "culture", "hidden", "chill", "food"];
 
 /** Místa podle id: /api/places?ids=a,b,c. Slouží pro mapu už odhalených míst. */
 export async function GET(request: Request) {
