@@ -24,13 +24,13 @@ const localPlaces: Row[] = (seed as Array<Omit<Place, "id"> & { slug: string; ra
 export async function listPlaces(): Promise<Row[]> {
   const supabase = getSupabase();
   if (!supabase) return localPlaces;
-  let { data, error } = await supabase.from("places").select(COLUMNS).eq("status", "approved");
+  const full = await supabase.from("places").select(COLUMNS).eq("status", "approved");
+  if (!full.error) return (full.data ?? []) as Row[];
   // 42703 = databáze ještě nemá sloupec radius_m (starší schéma). Načti bez něj.
-  if (error?.code === "42703") {
-    ({ data, error } = await supabase.from("places").select(LEGACY_COLUMNS).eq("status", "approved"));
-  }
-  if (error) throw new Error(error.message);
-  return (data ?? []) as Row[];
+  if (full.error.code !== "42703") throw new Error(full.error.message);
+  const legacy = await supabase.from("places").select(LEGACY_COLUMNS).eq("status", "approved");
+  if (legacy.error) throw new Error(legacy.error.message);
+  return (legacy.data ?? []) as Row[];
 }
 
 export async function getPlace(id: string): Promise<Place | null> {
